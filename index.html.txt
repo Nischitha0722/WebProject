@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #6dd5fa, #2980b9);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 80%;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #weatherInfo {
+      margin-top: 20px;
+    }
+
+    .weather-details {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .weather-details img {
+      width: 64px;
+      height: 64px;
+    }
+
+    .weather-details .info {
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Weather App</h1>
+    <form id="weatherForm">
+      <input type="text" id="locationInput" placeholder="Enter a location" required />
+      <button type="submit">Get Weather</button>
+    </form>
+
+    <div id="weatherInfo" class="hidden">
+      <h2 id="city"></h2>
+      <div class="weather-details">
+        <img id="weatherIcon" alt="Weather Icon" />
+        <div class="info">
+          <p><strong>Temperature:</strong> <span id="temperature"></span>°C</p>
+          <p><strong>Condition:</strong> <span id="condition"></span></p>
+          <p><strong>Local Time:</strong> <span id="time"></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "1e9d32541d4b4f518b253444251104";
+
+    document.getElementById("weatherForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const location = document.getElementById("locationInput").value.trim();
+      if (location) {
+        fetchWeather(location);
+      }
+    });
+
+    async function fetchWeather(location) {
+      const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.error) {
+          alert("Location not found!");
+          return;
+        }
+
+        document.getElementById("city").textContent = `${data.location.name}, ${data.location.country}`;
+        document.getElementById("temperature").textContent = data.current.temp_c;
+        document.getElementById("condition").textContent = data.current.condition.text;
+        document.getElementById("time").textContent = data.location.localtime;
+        document.getElementById("weatherIcon").src = "https:" + data.current.condition.icon;
+        document.getElementById("weatherIcon").alt = data.current.condition.text;
+
+        document.getElementById("weatherInfo").classList.remove("hidden");
+      } catch (err) {
+        console.error("Error fetching weather data:", err);
+        alert("Something went wrong. Try again later.");
+      }
+    }
+  </script>
+</body>
+</html>
